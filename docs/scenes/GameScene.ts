@@ -27,7 +27,7 @@ export class GameScene extends Phaser.Scene {
   preload(): void {
     this.load.pack(
       "flappyBirdPack",
-      "./src/assets/pack.json",
+      "./docs/assets/pack.json",
       "flappyBirdPack"
     );
   }
