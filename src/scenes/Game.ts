@@ -1,7 +1,14 @@
 import { Scene } from 'phaser';
+import { Bird } from "../objects/bird";
+import { Pipe } from "../objects/pipe";
 
 export class Game extends Scene
 {
+    private bird: Bird;
+    private pipes: Phaser.GameObjects.Group;
+    private background: Phaser.GameObjects.TileSprite;
+    private scoreText: Phaser.GameObjects.BitmapText;
+
     camera: Phaser.Cameras.Scene2D.Camera;
     background: Phaser.GameObjects.Image;
     msg_text : Phaser.GameObjects.Text;
@@ -11,25 +18,114 @@ export class Game extends Scene
         super('Game');
     }
 
-    create ()
-    {
-        this.camera = this.cameras.main;
-        this.camera.setBackgroundColor(0x00ff00);
-
-        this.background = this.add.image(512, 384, 'background');
-        this.background.setAlpha(0.5);
-
-        this.msg_text = this.add.text(512, 384, 'Make something fun!\nand share it with us:\nsupport@phaser.io', {
-            fontFamily: 'Arial Black', fontSize: 38, color: '#ffffff',
-            stroke: '#000000', strokeThickness: 8,
-            align: 'center'
-        });
-        this.msg_text.setOrigin(0.5);
-
-        this.input.once('pointerdown', () => {
-
-            this.scene.start('GameOver');
-
-        });
+    init(): void {
+        this.registry.set("score", -1);
     }
+    
+    preload(): void {
+        this.load.pack(
+          "flappyBirdPack",
+          "./src/assets/pack.json",
+          "flappyBirdPack"
+        );
+    }
+
+      create(): void {
+        this.background = this.add
+          .tileSprite(0, 0, 390, 600, "background")
+          .setOrigin(0, 0);
+    
+        this.scoreText = this.add
+          .bitmapText(
+            this.sys.canvas.width / 2 - 14,
+            30,
+            "font",
+            this.registry.values.score
+          )
+          .setDepth(2);
+    
+        this.pipes = this.add.group({ classType: Pipe });
+    
+        this.bird = new Bird({
+          scene: this,
+          x: 50,
+          y: 100,
+          key: "bird"
+        });
+    
+        // *****************************************************************
+        // TIMER
+        // *****************************************************************
+        this.addNewRowOfPipes();
+    
+        this.time.addEvent({
+          delay: 1500,
+          callback: this.addNewRowOfPipes,
+          callbackScope: this,
+          loop: true
+        });
+      }
+    
+      update(): void {
+        if (!this.bird.getDead()) {
+          this.background.tilePositionX += 4;
+          this.bird.update();
+          this.physics.overlap(
+            this.bird,
+            this.pipes,
+            function() {
+              this.bird.setDead(true);
+            },
+            null,
+            this
+          );
+        } else {
+          Phaser.Actions.Call(
+            this.pipes.getChildren(),
+            function(pipe) {
+              pipe.body.setVelocityX(0);
+            },
+            this
+          );
+    
+          if (this.bird.y > this.sys.canvas.height) {
+            this.scene.restart();
+          }
+        }
+      }
+    
+      private addNewRowOfPipes(): void {
+        // update the score
+        this.registry.values.score += 1;
+        this.scoreText.setText(this.registry.values.score);
+    
+        // randomly pick a number between 1 and 5
+        let hole = Math.floor(Math.random() * 5) + 1;
+    
+        // add 6 pipes with one big hole at position hole and hole + 1
+        for (let i = 0; i < 10; i++) {
+          if (i !== hole && i !== hole + 1 && i !== hole + 2) {
+            if (i === hole - 1) {
+              this.addPipe(400, i * 60, 0);
+            } else if (i === hole + 3) {
+              this.addPipe(400, i * 60, 1);
+            } else {
+              this.addPipe(400, i * 60, 2);
+            }
+          }
+        }
+      }
+    
+      private addPipe(x: number, y: number, frame: number): void {
+        // create a new pipe at the position x and y and add it to group
+        this.pipes.add(
+          new Pipe({
+            scene: this,
+            x: x,
+            y: y,
+            frame: frame,
+            key: "pipe"
+          })
+        );
+      }
 }
