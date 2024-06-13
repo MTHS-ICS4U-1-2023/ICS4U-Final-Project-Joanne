@@ -1,36 +1,31 @@
-/**
- * @author       Digitsensitive <digit.sensitivee@gmail.com>
- * @copyright    2019 Digitsensitive
- * @description  Flappy Bird: Game
- * @license      Digitsensitive
- */
+import { Boot } from './scenes/Boot';
+import { Game as MainGame } from './scenes/Game';
+import { GameOver } from './scenes/GameOver';
+import { MainMenu } from './scenes/MainMenu';
+import { Preloader } from './scenes/Preloader';
 
+import { Game, Types } from "phaser";
 import "phaser";
-import { GameScene } from "./scenes/GameScene";
 
-const config: GameConfig = {
-  width: 390,
-  height: 600,
-  parent: "game",
-  scene: [GameScene],
-  input: {
-    keyboard: true
-  },
-  physics: {
-    default: "arcade",
-    arcade: {
-      gravity: { y: 300 }
-    }
-  },
-  render: { pixelArt: true }
+//  Find out more information about the Game Config at:
+//  https://newdocs.phaser.io/docs/3.70.0/Phaser.Types.Core.GameConfig
+const config: Types.Core.GameConfig = {
+    type: Phaser.AUTO,
+    width: 390,
+    height: 600,
+    parent: 'game-container',
+    backgroundColor: '#028af8',
+    scale: {
+        mode: Phaser.Scale.FIT,
+        autoCenter: Phaser.Scale.CENTER_BOTH
+    },
+    scene: [
+        Boot,
+        Preloader,
+        MainMenu,
+        MainGame,
+        GameOver
+    ]
 };
 
-export class Game extends Phaser.Game {
-  constructor(config: GameConfig) {
-    super(config);
-  }
-}
-
-window.addEventListener("load", () => {
-  let game = new Game(config);
-});
+export default new Game(config);

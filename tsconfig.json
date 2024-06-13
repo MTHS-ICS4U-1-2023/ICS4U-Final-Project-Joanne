@@ -3,7 +3,7 @@
         "target": "ES2020",
         "useDefineForClassFields": true,
         "module": "ESNext",
-        "outDir": "docs",
+        "outDir": "./dist",
         "lib": [
             "ES2020",
             "DOM",
@@ -25,9 +25,9 @@
     },
     "include": [
         "src"
-, "dist/objects", "dist/scenes"    ],
+    ],
     "exclude": [
         "node_modules",
-        "docs"
+        "dist"
     ]
 }
