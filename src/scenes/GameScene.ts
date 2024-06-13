@@ -27,7 +27,7 @@ export class GameScene extends Phaser.Scene {
   preload(): void {
     this.load.pack(
       "flappyBirdPack",
-      "./docs/assets/pack.json",
+      "./public/assets/pack.json",
       "flappyBirdPack"
     );
   }
@@ -130,5 +130,4 @@ export class GameScene extends Phaser.Scene {
       })
     );
   }
-  this.scene.start('GameOver');
 }
